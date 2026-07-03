@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
-
+// import logo from '../public/image.png';
+const logo = "/image.png";
 const navLinks = [
   { label: 'Services', href: '#services' },
   { label: 'Case Studies', href: '#cases' },
@@ -42,9 +43,9 @@ export default function Navbar() {
             className="flex items-center gap-3 group"
           >
             <img
-              src="/image.png"
+              src={logo}
               alt="DMC Logo"
-              className="h-10 w-auto object-contain brightness-0 invert"
+              className="h-10 w-auto object-contain"
             />
           </a>
 

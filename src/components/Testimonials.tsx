@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Star, ChevronLeft, ChevronRight, Quote } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const testimonials = [
   {
@@ -40,25 +41,20 @@ const testimonials = [
   },
 ];
 
-const clientLogos = [
-  'FashionUZ', 'Grand Hotel', 'EduPlatform', 'Savdo Group',
-  'TechStart UZ', 'Nexus Trade', 'BuildCo', 'MedGroup',
-];
-
 export default function Testimonials() {
-  const titleRef = useRef<HTMLDivElement>(null);
-  const [titleVisible, setTitleVisible] = useState(false);
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
-  const intervalRef = useRef<ReturnType<typeof setInterval>>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const [titleVisible, setTitleVisible] = useState(false);
 
   const next = useCallback(() => setCurrent((c) => (c + 1) % testimonials.length), []);
   const prev = useCallback(() => setCurrent((c) => (c - 1 + testimonials.length) % testimonials.length), []);
 
+  // Avtomatik almashtirish (auto-play)
   useEffect(() => {
     if (paused) return;
-    intervalRef.current = setInterval(next, 5000);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    const interval = setInterval(next, 6000);
+    return () => clearInterval(interval);
   }, [paused, next]);
 
   useEffect(() => {
@@ -77,6 +73,7 @@ export default function Testimonials() {
   return (
     <section id="testimonials" className="relative py-28 bg-brand-black overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        
         {/* Header */}
         <div
           ref={titleRef}
@@ -87,128 +84,74 @@ export default function Testimonials() {
             transition: 'opacity 0.7s ease, transform 0.7s ease',
           }}
         >
-          <div className="section-label mx-auto" style={{ justifyContent: 'center' }}>
-            Client Stories
-          </div>
+          <div className="section-label mx-auto" style={{ justifyContent: 'center' }}>Client Stories</div>
           <h2 className="text-4xl lg:text-5xl font-bold text-brand-text mt-4">
-            Don&apos;t Take
-            <br />
+            Don&apos;t Take <br />
             <span className="green-gradient-text">Our Word For It</span>
           </h2>
         </div>
 
-        {/* Testimonial card */}
-        <div
+        {/* Testimonial Card */}        
+        <div 
           className="relative max-w-4xl mx-auto mb-12"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
-          <div
-            key={current}
-            className="bg-brand-card border border-brand-border rounded-2xl p-8 lg:p-12 relative overflow-hidden"
-            style={{ animation: 'testimonialIn 0.5s ease' }}
-          >
-            {/* Decorative quote mark */}
-            <div className="absolute top-6 right-8 text-brand-green opacity-10">
-              <Quote size={80} />
-            </div>
+          <div className="relative h-[450px] lg:h-[350px]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={current}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.4, ease: "easeInOut" }}
+                className="absolute inset-0 bg-brand-card border border-brand-border rounded-2xl p-8 lg:p-12"
+              >
+                <Quote size={80} className="absolute top-6 right-8 text-brand-green opacity-10" />
+                
+                <div className="flex gap-1 mb-6">
+                  {Array.from({ length: t.stars }).map((_, i) => (
+                    <Star key={i} size={16} className="text-brand-green" fill="currentColor" />
+                  ))}
+                </div>
 
-            {/* Stars */}
-            <div className="flex gap-1 mb-6">
-              {Array.from({ length: t.stars }).map((_, i) => (
-                <Star key={i} size={16} className="text-brand-green" fill="currentColor" />
-              ))}
-            </div>
+                <blockquote className="text-lg lg:text-xl text-brand-text leading-relaxed mb-8 italic">
+                  &ldquo;{t.quote}&rdquo;
+                </blockquote>
 
-            {/* Quote */}
-            <blockquote className="text-lg lg:text-xl text-brand-text leading-relaxed mb-8 relative z-10">
-              &ldquo;{t.quote}&rdquo;
-            </blockquote>
-
-            {/* Author */}
-            <div className="flex items-center gap-4">
-              <img
-                src={t.avatar}
-                alt={t.name}
-                className="w-12 h-12 rounded-full object-cover border-2 border-brand-green/40"
-              />
-              <div>
-                <div className="font-bold text-brand-text">{t.name}</div>
-                <div className="text-sm text-brand-text-muted">{t.role}, {t.company}</div>
-              </div>
-            </div>
+                <div className="flex items-center gap-4">
+                  <img src={t.avatar} alt={t.name} className="w-12 h-12 rounded-full object-cover border-2 border-brand-green/40" />
+                  <div>
+                    <div className="font-bold text-brand-text">{t.name}</div>
+                    <div className="text-sm text-brand-text-muted">{t.role}, {t.company}</div>
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
 
           {/* Controls */}
-          <div className="flex items-center justify-between mt-6">
+          <div className="flex items-center justify-between mt-8">
             <div className="flex gap-2">
               {testimonials.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrent(i)}
-                  className={`transition-all duration-300 rounded-full ${
-                    i === current
-                      ? 'w-8 h-2 bg-brand-green'
-                      : 'w-2 h-2 bg-brand-border hover:bg-brand-muted'
-                  }`}
-                  aria-label={`Go to testimonial ${i + 1}`}
+                  className={`transition-all duration-300 rounded-full ${i === current ? 'w-8 h-2 bg-brand-green' : 'w-2 h-2 bg-brand-border hover:bg-brand-muted'}`}
                 />
               ))}
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={prev}
-                className="w-10 h-10 rounded-lg border border-brand-border flex items-center justify-center text-brand-text-muted hover:text-brand-green hover:border-brand-green/50 transition-all duration-200"
-              >
+              <button onClick={prev} className="w-10 h-10 rounded-lg border border-brand-border flex items-center justify-center hover:text-brand-green transition-colors">
                 <ChevronLeft size={18} />
               </button>
-              <button
-                onClick={next}
-                className="w-10 h-10 rounded-lg border border-brand-border flex items-center justify-center text-brand-text-muted hover:text-brand-green hover:border-brand-green/50 transition-all duration-200"
-              >
+              <button onClick={next} className="w-10 h-10 rounded-lg border border-brand-border flex items-center justify-center hover:text-brand-green transition-colors">
                 <ChevronRight size={18} />
               </button>
             </div>
           </div>
         </div>
-
-        {/* Client logo marquee */}
-        <div
-          className="mt-16 overflow-hidden"
-          style={{
-            opacity: titleVisible ? 1 : 0,
-            transition: 'opacity 0.7s ease 0.4s',
-          }}
-        >
-          <div className="text-center text-xs font-semibold tracking-widest text-brand-text-dim uppercase mb-6">
-            Trusted By
-          </div>
-          <div className="relative overflow-hidden">
-            <div className="absolute left-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
-              style={{ background: 'linear-gradient(90deg, #0A0A0A, transparent)' }} />
-            <div className="absolute right-0 top-0 bottom-0 w-16 z-10 pointer-events-none"
-              style={{ background: 'linear-gradient(-90deg, #0A0A0A, transparent)' }} />
-            <div className="flex gap-12 items-center" style={{ animation: 'marquee 25s linear infinite', width: 'max-content' }}>
-              {[...clientLogos, ...clientLogos].map((logo, i) => (
-                <div key={i} className="text-brand-text-dim font-bold text-sm tracking-wide whitespace-nowrap px-2 opacity-50 hover:opacity-100 transition-opacity">
-                  {logo}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
-
-      <style>{`
-        @keyframes testimonialIn {
-          from { opacity: 0; transform: translateY(12px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes marquee {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-      `}</style>
     </section>
   );
 }
