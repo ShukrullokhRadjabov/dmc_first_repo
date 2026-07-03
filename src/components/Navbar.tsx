@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 // import logo from '../public/image.png';
-const logo = "/image.png";
+const logo = "image.png";
 const navLinks = [
   { label: 'Services', href: '#services' },
   { label: 'Case Studies', href: '#cases' },
